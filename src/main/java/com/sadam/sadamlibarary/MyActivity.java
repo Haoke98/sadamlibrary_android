@@ -155,6 +155,8 @@ public abstract class MyActivity extends AppCompatActivity {
             return count;
         }
 
+//        test5 taskmanger
+
 
         /**
          * 复制数据库文件 从res.raw目录 --> 到App缓存目录的databases目录
