@@ -155,7 +155,7 @@ public abstract class MyActivity extends AppCompatActivity {
             return count;
         }
 
-//        test5 taskmanger
+//        test5 taskmanger;
 
 
         /**
