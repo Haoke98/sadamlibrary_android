@@ -65,14 +65,46 @@ public abstract class MyActivity extends AppCompatActivity {
     public class DataImmigrator {
 
 
-        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] sqlite_columns,String [] litepal_columns, int r_raw_db_sqlite_id) {
+        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, int r_raw_db_sqlite_id) {
+            return copyAndImmigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,new String[]{},new String[]{},r_raw_db_sqlite_id);
+        }
+
+        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns, int r_raw_db_sqlite_id) {
+            return copyAndImmigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,litepal_columns,new String[litepal_columns.length],r_raw_db_sqlite_id);
+        }
+        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns,String [] sqlite_columns, int r_raw_db_sqlite_id) {
             int count = -1;
             if (copyDatabaseFileToTheDirectory(r_raw_db_sqlite_id)) {
-                count = immigrateDataToLitePal(resourse_databasename, resourse_tablename, resourse_database_version, target_modelClass, sqlite_columns,litepal_columns);
+                count = immigrateDataToLitePal(resourse_databasename, resourse_tablename, resourse_database_version, target_modelClass,litepal_columns, sqlite_columns);
                 return count;
             } else {
                 return count;
             }
+        }
+
+
+        /**当不指定任何列对应键值对时 默认 认为按员命名格式映射
+         * @param resourse_databasename
+         * @param resourse_tablename
+         * @param resourse_database_version
+         * @param target_modelClass
+         * @return
+         */
+        protected int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass) {
+            return this.immigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,new String[]{});
+        }
+
+
+        /**当只给出 litepal里的 变量 但没给出  所对应的原来的列时  认为 这些变量是被抛弃的  不会作为列来处理。
+         * @param resourse_databasename
+         * @param resourse_tablename
+         * @param resourse_database_version
+         * @param target_modelClass
+         * @param litepal_colums
+         * @return
+         */
+        protected int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass,String[] litepal_colums) {
+            return this.immigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,litepal_colums,new String[litepal_colums.length]);
         }
 
         /**
@@ -137,7 +169,14 @@ public abstract class MyActivity extends AppCompatActivity {
          *
          *                            为了避免  重复劳动   先  判断一下     fields.length ==  lite_pal_columns.length
          */
-        protected int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] sqlite_columns,String [] litepal_columns) {
+        protected int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns,String [] sqlite_columns) {
+            if (litepal_columns.length!= sqlite_columns.length){
+                try {
+                    throw new Exception("litepal_columns  and sqlite_columns must be one to one correspondence.");
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
             MyDatabaseHelper myDatabaseHelper = new MyDatabaseHelper(MyActivity.this, resourse_databasename, null, resourse_database_version);
             SQLiteDatabase sqLiteDatabase = myDatabaseHelper.getReadableDatabase();
 
@@ -153,17 +192,23 @@ public abstract class MyActivity extends AppCompatActivity {
             Field[] fields = target_modelClass.getDeclaredFields();
             HashMap<String, String> hashMap = new HashMap<>();
             if (fields.length == litepal_columns.length) {
+//                logE(this,"===================================");
                 for (int i = 0; i < litepal_columns.length; i++) {
                     hashMap.put(litepal_columns[i], sqlite_columns[i]);
                 }
             } else {
+//                logE(this,"/////////////////////////////////////////");
                 for (Field field : fields) {
                     hashMap.put(field.getName(), field.getName());
                 }
+                logE(this,"********************下面是被替换的列 或者 被抛弃的列***************************");
                 for (int i = 0; i < litepal_columns.length; i++) {
-                    hashMap.put(litepal_columns[i], sqlite_columns[i]);
+                    logE(this,hashMap.put(litepal_columns[i], sqlite_columns[i]));
                 }
+                logE(this,"********************************************************************************");
             }
+
+
             if (cursor.moveToFirst()) {
                 Log.e(TAG, "MoveToFirst");
                 Log.e(TAG, "FirstWord");
@@ -172,7 +217,7 @@ public abstract class MyActivity extends AppCompatActivity {
                         DataSupport object = (DataSupport) target_modelClass.newInstance();
                         for (Field field : fields) {
                             String sqlite_columns_name = hashMap.get(field.getName());
-                            if (hashMap.get(field.getName()) != null) {
+                            if (sqlite_columns_name != null) {
                                 Method method = target_modelClass.getDeclaredMethod("set" + field.getName(), field.getType());
                                 Class<?> dataType = field.getType();
                                 int columnIndex = cursor.getColumnIndex(sqlite_columns_name);
