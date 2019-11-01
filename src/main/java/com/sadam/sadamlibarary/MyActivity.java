@@ -86,7 +86,7 @@ public abstract class MyActivity extends AppCompatActivity {
          * @param target_modelClass
          * @return
          */
-        protected int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass) {
+        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass) {
             return this.immigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,new String[]{});
         }
 
@@ -99,17 +99,19 @@ public abstract class MyActivity extends AppCompatActivity {
          * @param litepal_colums
          * @return
          */
-        protected int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass,String[] litepal_colums) {
+        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass,String[] litepal_colums) {
             return this.immigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,litepal_colums,new String[litepal_colums.length]);
         }
 
         /**
          * 把普通的sqlite数据库转移到LitePal数据库的工具
          *
+         * Note:    target__modelClass 类必须有  零参数构造函数
+         *
          * @param resourse_databasename     普通数据库的“.db”文件名
          * @param resourse_tablename        普通数据库的 table 名
          * @param resourse_database_version 普通数据库的版本号
-         * @param target_modelClass         LitePal数据库的映射模型类
+         * @param target_modelClass         LitePal数据库的映射模型类    必须有zero argument constructor
          * @param litepal_columns                 LitePal数据库映射模型里一些非字段变量 以及 与普通Sqlite数据库里不对口的数据
          * @return 返回成功转移的数据数量
          *
@@ -165,7 +167,7 @@ public abstract class MyActivity extends AppCompatActivity {
          *
          *                            为了避免  重复劳动   先  判断一下     fields.length ==  lite_pal_columns.length
          */
-        protected int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns,String [] sqlite_columns) {
+        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns,String [] sqlite_columns) {
             if (litepal_columns.length!= sqlite_columns.length){
                 try {
                     throw new Exception("litepal_columns  and sqlite_columns must be one to one correspondence.");
