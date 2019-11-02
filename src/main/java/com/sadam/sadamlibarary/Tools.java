@@ -10,7 +10,48 @@ import android.support.annotation.RequiresApi;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
 public class Tools {
+
+
+    /**通过反射机制获取Field的get方法
+     * @param objectClass
+     * @param field
+     * @return
+     */
+    public static Method getDeclaredGetMethod(Class objectClass,Field field){
+        return getDeclaredSetGetMethod(objectClass,field,"get");
+    }
+
+    /**通过反射机制获取Field的set方法
+     * @param objectClass
+     * @param field
+     * @return
+     */
+    public static Method getDeclaredSetMethod(Class objectClass,Field field){
+        return getDeclaredSetGetMethod(objectClass,field,"set");
+    }
+
+    /**通过反射机制获取Field的get，set方法
+     * @param objectClass
+     * @param field
+     * @param SetOrGet
+     * @return  返回Method    通过  Method.ivoke(Object,args)方法来实现
+     */
+    private static Method getDeclaredSetGetMethod(Class objectClass, Field field, String SetOrGet){
+        StringBuffer sb = new StringBuffer();
+        sb.append(SetOrGet);
+        sb.append(field.getName().substring(0,1).toUpperCase());
+        sb.append(field.getName().substring(1));
+        try {
+            return objectClass.getDeclaredMethod(sb.toString(),field.getType());
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
     public static boolean isLightColor(int color) {
         double darkness = 1 - (0.299 * Color.red(color) + 0.587 * Color.green(color) + 0.114 * Color.blue(color)) / 255;

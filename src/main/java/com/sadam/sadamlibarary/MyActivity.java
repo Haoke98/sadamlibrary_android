@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 
+import org.litepal.LitePal;
 import org.litepal.crud.DataSupport;
 
 import java.io.File;
@@ -22,8 +23,10 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Date;
 import java.util.HashMap;
 
+import static com.sadam.sadamlibarary.Tools.getDeclaredSetMethod;
 import static com.sadam.sadamlibarary.Tools.isLightColor;
 
 public abstract class MyActivity extends AppCompatActivity {
@@ -216,18 +219,21 @@ public abstract class MyActivity extends AppCompatActivity {
                         for (Field field : fields) {
                             String sqlite_columns_name = hashMap.get(field.getName());
                             if (sqlite_columns_name != null) {
-                                Method method = target_modelClass.getDeclaredMethod("set" + field.getName(), field.getType());
+                                Method method = getDeclaredSetMethod(object.getClass(),field);
+//                                Method method = target_modelClass.getDeclaredMethod("set" + field.getName(), field.getType());
                                 Class<?> dataType = field.getType();
                                 int columnIndex = cursor.getColumnIndex(sqlite_columns_name);
                                 Object data = null;
-                                if (dataType == String.class) {
+                                if (dataType.isAssignableFrom(String.class)) {
                                     data = cursor.getString(columnIndex);
-                                } else if (dataType == int.class) {
+                                } else if (dataType.isAssignableFrom(int.class)) {
                                     data = cursor.getInt(columnIndex);
-                                } else {
+                                } else if(dataType.isAssignableFrom(Date.class)){
+                                    data = cursor.getInt(columnIndex);
+                                }else {
                                     data = cursor.getBlob(columnIndex);
                                 }
-//                                Log.e(TAG,data.toString());
+                                Log.e(TAG,data+" "+method.getName());
                                 method.invoke(object, data);
                             } else {
                             }
@@ -238,8 +244,6 @@ public abstract class MyActivity extends AppCompatActivity {
                     } catch (InstantiationException e) {
                         e.printStackTrace();
                     } catch (InvocationTargetException e) {
-                        e.printStackTrace();
-                    } catch (NoSuchMethodException e) {
                         e.printStackTrace();
                     }
                 } while (cursor.moveToNext());
@@ -292,8 +296,31 @@ public abstract class MyActivity extends AppCompatActivity {
             return true;
         }
 
+        /**验证数据库文件是否存在
+         * @param db_filename 在程序数据包文件夹里的databases文件夹里的数据库文件名
+         * @return  如果文件存在返回 true ，否则 返回 false
+         */
         public boolean isExistDataFile(String db_filename){
             return new File(getDBFilePath(db_filename)).exists();
+        }
+
+        /**删除litepal生成的三个数据库文件 xxx.db ,xxx.db-shm , xxx.db-wal
+         * @param db_filename 是在项目的assets目录下litepal.xml文件里<dbmane></dbmane>标签里定义的value（Note：不含“.db")
+         * @return  删除是否成功
+         */
+        public boolean dropLitePalDB(String db_filename){
+              for(String name:new String[]{db_filename+".db",db_filename+".db-shm",db_filename+".db-wal"}){
+                  dropDBFile(name);
+              }
+              return !isExistDataFile(db_filename+".db");
+        }
+
+        /**删除数据库文件
+         * @param db_filename 在程序数据包文件夹里的databases文件夹里的数据库文件名
+         * @return  是否删除成功
+         */
+        public boolean  dropDBFile(String db_filename){
+            return new File(getDBFilePath(db_filename)).delete();
         }
 
         private String getDBFilePath(String db_filename){
@@ -305,7 +332,5 @@ public abstract class MyActivity extends AppCompatActivity {
             final String dbfile_absolutelyPath = dbPath + db_filename;
             return dbfile_absolutelyPath;
         }
-
-
     }
 }
