@@ -12,7 +12,6 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 
-import org.litepal.LitePal;
 import org.litepal.crud.DataSupport;
 
 import java.io.File;
@@ -182,6 +181,8 @@ public abstract class MyActivity extends AppCompatActivity {
             SQLiteDatabase sqLiteDatabase = myDatabaseHelper.getReadableDatabase();
 
             Cursor cursor = sqLiteDatabase.query(resourse_tablename, null, null, null, null, null, null, null);
+            int countOfSourceData = cursor.getCount();
+            logE(this,"需要迁移的数据量有："+countOfSourceData);
             int lastcount = DataSupport.count(target_modelClass);
             Log.e(TAG, "原有的数据量：" + lastcount);
             if (lastcount == DataSupport.deleteAll(target_modelClass)) {
@@ -229,11 +230,11 @@ public abstract class MyActivity extends AppCompatActivity {
                                 } else if (dataType.isAssignableFrom(int.class)) {
                                     data = cursor.getInt(columnIndex);
                                 } else if(dataType.isAssignableFrom(Date.class)){
-                                    data = cursor.getInt(columnIndex);
+                                    data = new Date(cursor.getInt(columnIndex));
                                 }else {
                                     data = cursor.getBlob(columnIndex);
                                 }
-                                Log.e(TAG,data+" "+method.getName());
+                                Log.e(TAG,method.getName()+" "+data);
                                 method.invoke(object, data);
                             } else {
                             }
@@ -249,7 +250,7 @@ public abstract class MyActivity extends AppCompatActivity {
                 } while (cursor.moveToNext());
             }
             int count = DataSupport.count(target_modelClass);
-            Log.e(TAG, "总共迁移数据量：" + count);
+            Log.e(TAG, "总共迁移数据量：" + count+"  失败："+(countOfSourceData-count));
             return count;
         }
 
