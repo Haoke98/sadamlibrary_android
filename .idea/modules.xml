@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/../TaskManager.iml" filepath="$PROJECT_DIR$/../TaskManager.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../ProjectForLibraryRelease.iml" filepath="$PROJECT_DIR$/../ProjectForLibraryRelease.iml" />
       <module fileurl="file://$PROJECT_DIR$/../app/app.iml" filepath="$PROJECT_DIR$/../app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/sadamlibarary.iml" filepath="$PROJECT_DIR$/sadamlibarary.iml" />
+      <module fileurl="file://$PROJECT_DIR$/sadamlibrary.iml" filepath="$PROJECT_DIR$/sadamlibrary.iml" />
     </modules>
   </component>
 </project>
