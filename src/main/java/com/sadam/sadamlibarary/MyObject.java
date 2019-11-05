@@ -6,4 +6,5 @@ public class MyObject extends Object {
     public static void logE(Object object, String warning) {
         Log.e(object.getClass().getSimpleName(), warning);
     }
+
 }
