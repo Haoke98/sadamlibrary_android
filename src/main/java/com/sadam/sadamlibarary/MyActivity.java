@@ -32,7 +32,7 @@ public abstract class MyActivity extends AppCompatActivity {
     private static final String TAG = MyActivity.class.getSimpleName();
 
     public static void logE(Object object, String warning) {
-        Log.e(object.getClass().getSimpleName(), warning);
+        MyObject.logE(object,warning);
     }
 
 
