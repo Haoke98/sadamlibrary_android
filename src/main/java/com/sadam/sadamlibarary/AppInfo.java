@@ -4,7 +4,8 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.support.annotation.RequiresApi;
+
+import androidx.annotation.RequiresApi;
 
 /**
  * 在这个class里放一些通用方法，先当于一个工具库，在以后的app开发中能循环利用
