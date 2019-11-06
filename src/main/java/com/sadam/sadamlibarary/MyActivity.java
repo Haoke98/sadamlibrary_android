@@ -32,8 +32,8 @@ import static com.sadam.sadamlibarary.Tools.isLightColor;
 public abstract class MyActivity extends AppCompatActivity {
     private static final String TAG = MyActivity.class.getSimpleName();
 
-    public static void logE(Object object, String warning) {
-        MyObject.logE(object,warning);
+    public static void logE(String warning) {
+        StaticUtils.getCodeInfo(new Throwable());
     }
 
 
@@ -183,7 +183,7 @@ public abstract class MyActivity extends AppCompatActivity {
 
             Cursor cursor = sqLiteDatabase.query(resourse_tablename, null, null, null, null, null, null, null);
             int countOfSourceData = cursor.getCount();
-            logE(this,"需要迁移的数据量有："+countOfSourceData);
+            logE("需要迁移的数据量有："+countOfSourceData);
             int lastcount = DataSupport.count(target_modelClass);
             Log.e(TAG, "原有的数据量：" + lastcount);
             if (lastcount == DataSupport.deleteAll(target_modelClass)) {
@@ -204,11 +204,11 @@ public abstract class MyActivity extends AppCompatActivity {
                 for (Field field : fields) {
                     hashMap.put(field.getName(), field.getName());
                 }
-                logE(this,"********************下面是被替换的列 或者 被抛弃的列***************************");
+                logE("********************下面是被替换的列 或者 被抛弃的列***************************");
                 for (int i = 0; i < litepal_columns.length; i++) {
-                    logE(this,hashMap.put(litepal_columns[i], sqlite_columns[i]));
+                    logE(hashMap.put(litepal_columns[i], sqlite_columns[i]));
                 }
-                logE(this,"********************************************************************************");
+                logE("********************************************************************************");
             }
 
 
@@ -266,9 +266,9 @@ public abstract class MyActivity extends AppCompatActivity {
 //
             final String DB_NAME = "db_sqlite.db"; //保存的数据库文件名
             String dbfile = getDBFilePath(DB_NAME);
-            logE(this,dbfile);
+            logE(dbfile);
             String dbPath = dbfile.substring(0,dbfile.length()-DB_NAME.length());
-            logE(this,dbPath);
+            logE(dbPath);
             try {
                 if (!(new File(dbfile).exists())) {//判断数据库文件是否存在，若不存在则执行导入
                     File filepath = new File(dbPath);
