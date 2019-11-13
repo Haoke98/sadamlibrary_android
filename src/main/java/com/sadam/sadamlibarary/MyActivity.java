@@ -1,5 +1,6 @@
 package com.sadam.sadamlibarary;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
@@ -30,10 +32,11 @@ import static com.sadam.sadamlibarary.Tools.getDeclaredSetMethod;
 import static com.sadam.sadamlibarary.Tools.isLightColor;
 
 public abstract class MyActivity extends AppCompatActivity {
+    public static final int  TAKE_PHOTO=1;
     private static final String TAG = MyActivity.class.getSimpleName();
 
     public static void logE(String warning) {
-        StaticUtils.getCodeInfo(new Throwable());
+        Log.d("",StaticUtils.getCodeInfo(new Throwable())+warning);
     }
 
 
