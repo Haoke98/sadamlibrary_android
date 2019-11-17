@@ -3,10 +3,13 @@ package com.sadam.sadamlibarary;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Rect;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 
 import androidx.annotation.Nullable;
@@ -32,13 +35,59 @@ import static com.sadam.sadamlibarary.Tools.getDeclaredSetMethod;
 import static com.sadam.sadamlibarary.Tools.isLightColor;
 
 public abstract class MyActivity extends AppCompatActivity {
-    public static final int  TAKE_PHOTO=1;
+    public static final byte  TAKE_PHOTO=1;
     private static final String TAG = MyActivity.class.getSimpleName();
+    private static int rootViewVisibleHeight;
+    private static final short SOFTKEYBOARDMINHEIGHT=200;
 
     public static void logE(String warning) {
         Log.d("",StaticUtils.getCodeInfo(new Throwable())+warning);
     }
 
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        final View rootView = getWindow().getDecorView();
+        final Rect rect = new Rect();
+        rootView.getWindowVisibleDisplayFrame(rect);
+        rootViewVisibleHeight = rect.height();
+        /*监听视图树中全局布局发生改变或者视图中的某个视图的可视状态发生改变*/
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                Rect rect1 = new Rect();
+                rootView.getWindowVisibleDisplayFrame(rect1);
+                int rootViewVisibleHeight_aferReDraw = rect1.height();
+                logE("height is now :"+rootViewVisibleHeight_aferReDraw);
+                if(rootViewVisibleHeight==0){
+                    rootViewVisibleHeight = rootViewVisibleHeight_aferReDraw;
+                }else if(rootViewVisibleHeight==rootViewVisibleHeight_aferReDraw){}else if(rootViewVisibleHeight-rootViewVisibleHeight_aferReDraw>SOFTKEYBOARDMINHEIGHT){
+                    /*如果视图显示高度变小超过了200，可看作是键盘显示了*/
+                    logE("SOFT_KEYBOARD_VISIBLE");
+                    onSoftKeyBoardPopUp();
+                    rootViewVisibleHeight = rootViewVisibleHeight_aferReDraw;
+                }else if(rootViewVisibleHeight_aferReDraw-rootViewVisibleHeight>SOFTKEYBOARDMINHEIGHT){
+                    /*如果视图高度变大超过200,可看作键盘收起了*/
+                    logE("键盘收起了");
+                    onSoftKeyBoardPutAway();
+                    rootViewVisibleHeight = rootViewVisibleHeight_aferReDraw;
+                }
+            }
+        });
+    }
+
+    /**
+     * this method used to handle some event when the soft keyboard has been put away.
+     * when you use it ,you can override the methods on your MainActivity and put some event in it.
+     */
+    public void onSoftKeyBoardPutAway() {
+    }
+    /**
+     * this method used to handle some event when the soft keyboard has been pop-up.
+     * when you use it ,you can override the methods on your MainActivity and put some event in it.
+     */
+    public void onSoftKeyBoardPopUp() {
+    }
 
     public void SadamReplaceFragment(int containerLayout_id, Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
