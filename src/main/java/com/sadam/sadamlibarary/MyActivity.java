@@ -1,6 +1,5 @@
 package com.sadam.sadamlibarary;
 
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Rect;
@@ -41,7 +40,7 @@ public abstract class MyActivity extends AppCompatActivity {
     private static final short SOFTKEYBOARDMINHEIGHT=200;
 
     public static void logE(String warning) {
-        Log.d("",StaticUtils.getCodeInfo(new Throwable())+warning);
+        Log.d("",StaticUtils.getCodeInfo(new Throwable())+warning+"\n \n");
     }
 
     @Override
@@ -58,17 +57,14 @@ public abstract class MyActivity extends AppCompatActivity {
                 Rect rect1 = new Rect();
                 rootView.getWindowVisibleDisplayFrame(rect1);
                 int rootViewVisibleHeight_aferReDraw = rect1.height();
-                logE("height is now :"+rootViewVisibleHeight_aferReDraw);
                 if(rootViewVisibleHeight==0){
                     rootViewVisibleHeight = rootViewVisibleHeight_aferReDraw;
                 }else if(rootViewVisibleHeight==rootViewVisibleHeight_aferReDraw){}else if(rootViewVisibleHeight-rootViewVisibleHeight_aferReDraw>SOFTKEYBOARDMINHEIGHT){
                     /*如果视图显示高度变小超过了200，可看作是键盘显示了*/
-                    logE("SOFT_KEYBOARD_VISIBLE");
                     onSoftKeyBoardPopUp();
                     rootViewVisibleHeight = rootViewVisibleHeight_aferReDraw;
                 }else if(rootViewVisibleHeight_aferReDraw-rootViewVisibleHeight>SOFTKEYBOARDMINHEIGHT){
                     /*如果视图高度变大超过200,可看作键盘收起了*/
-                    logE("键盘收起了");
                     onSoftKeyBoardPutAway();
                     rootViewVisibleHeight = rootViewVisibleHeight_aferReDraw;
                 }
