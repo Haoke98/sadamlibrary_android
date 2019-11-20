@@ -29,6 +29,11 @@ public class MyTimeStampMyDate extends Timestamp {
         super(date.getTime());
     }
 
+    public MyTimeStampMyDate(long deadline) {
+        super(deadline);
+    }
+
+
     @Override
     public int getYear() {
         return super.getYear()+1900;

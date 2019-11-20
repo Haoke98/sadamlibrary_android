@@ -112,17 +112,17 @@ public abstract class MyActivity extends AppCompatActivity {
     public class DataImmigrator {
 
 
-        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, int r_raw_db_sqlite_id) {
-            return copyAndImmigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,new String[]{},new String[]{},r_raw_db_sqlite_id);
+        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, int r_raw_db_sqlite_id,boolean justTryNotWrite) {
+            return copyAndImmigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,new String[]{},new String[]{},r_raw_db_sqlite_id,justTryNotWrite);
         }
 
-        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns, int r_raw_db_sqlite_id) {
-            return copyAndImmigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,litepal_columns,new String[litepal_columns.length],r_raw_db_sqlite_id);
+        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns, int r_raw_db_sqlite_id,boolean justTryNotWrite) {
+            return copyAndImmigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,litepal_columns,new String[litepal_columns.length],r_raw_db_sqlite_id,justTryNotWrite);
         }
-        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns,String [] sqlite_columns, int r_raw_db_sqlite_id) {
+        public int copyAndImmigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns,String [] sqlite_columns, int r_raw_db_sqlite_id,boolean justTryNotWrite) {
             int count = -1;
             if (copyDatabaseFileToTheDirectory(r_raw_db_sqlite_id)) {
-                count = immigrateDataToLitePal(resourse_databasename, resourse_tablename, resourse_database_version, target_modelClass,litepal_columns, sqlite_columns);
+                count = immigrateDataToLitePal(resourse_databasename, resourse_tablename, resourse_database_version, target_modelClass,litepal_columns, sqlite_columns,justTryNotWrite);
                 return count;
             } else {
                 return count;
@@ -137,8 +137,8 @@ public abstract class MyActivity extends AppCompatActivity {
          * @param target_modelClass
          * @return
          */
-        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass) {
-            return this.immigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,new String[]{});
+        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass,boolean justTryNotWrite) {
+            return this.immigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,new String[]{},justTryNotWrite);
         }
 
 
@@ -150,8 +150,8 @@ public abstract class MyActivity extends AppCompatActivity {
          * @param litepal_colums
          * @return
          */
-        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass,String[] litepal_colums) {
-            return this.immigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,litepal_colums,new String[litepal_colums.length]);
+        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass,String[] litepal_colums,boolean justTryNotWrite) {
+            return this.immigrateDataToLitePal(resourse_databasename,resourse_tablename,resourse_database_version,target_modelClass,litepal_colums,new String[litepal_colums.length],justTryNotWrite);
         }
 
         /**
@@ -218,7 +218,7 @@ public abstract class MyActivity extends AppCompatActivity {
          *
          *                            为了避免  重复劳动   先  判断一下     fields.length ==  lite_pal_columns.length
          */
-        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns,String [] sqlite_columns) {
+        public int immigrateDataToLitePal(String resourse_databasename, String resourse_tablename, int resourse_database_version, Class target_modelClass, String[] litepal_columns,String [] sqlite_columns,boolean justTryNotWrite) {
             if (litepal_columns.length!= sqlite_columns.length){
                 try {
                     throw new Exception("litepal_columns  and sqlite_columns must be one to one correspondence.");
@@ -243,20 +243,18 @@ public abstract class MyActivity extends AppCompatActivity {
             Field[] fields = target_modelClass.getDeclaredFields();
             HashMap<String, String> hashMap = new HashMap<>();
             if (fields.length == litepal_columns.length) {
-//                logE(this,"===================================");
                 for (int i = 0; i < litepal_columns.length; i++) {
                     hashMap.put(litepal_columns[i], sqlite_columns[i]);
                 }
             } else {
-//                logE(this,"/////////////////////////////////////////");
                 for (Field field : fields) {
                     hashMap.put(field.getName(), field.getName());
                 }
-                logE("********************下面是被替换的列 或者 被抛弃的列***************************");
+                Log.e("","********************下面是被替换的列 或者 被抛弃的列***************************");
                 for (int i = 0; i < litepal_columns.length; i++) {
-                    logE(hashMap.put(litepal_columns[i], sqlite_columns[i]));
+                    Log.e("",hashMap.put(litepal_columns[i], sqlite_columns[i]));
                 }
-                logE("********************************************************************************");
+                Log.e("","********************************************************************************");
             }
 
 
@@ -270,25 +268,39 @@ public abstract class MyActivity extends AppCompatActivity {
                             String sqlite_columns_name = hashMap.get(field.getName());
                             if (sqlite_columns_name != null) {
                                 Method method = getDeclaredSetMethod(object.getClass(),field);
-//                                Method method = target_modelClass.getDeclaredMethod("set" + field.getName(), field.getType());
                                 Class<?> dataType = field.getType();
+                                Log.e("filed",field.getName());
+                                Log.e("field.type",dataType+"");
+                                Log.e("method",method.getName());
                                 int columnIndex = cursor.getColumnIndex(sqlite_columns_name);
+                                Log.e("columnIndex",""+columnIndex);
                                 Object data = null;
                                 if (dataType.isAssignableFrom(String.class)) {
                                     data = cursor.getString(columnIndex);
-                                } else if (dataType.isAssignableFrom(int.class)) {
+                                } else if (dataType.isAssignableFrom(Integer.TYPE)||dataType.isAssignableFrom(Integer.class)) {
                                     data = cursor.getInt(columnIndex);
                                 } else if(dataType.isAssignableFrom(Date.class)){
                                     data = new Date(cursor.getInt(columnIndex));
-                                }else {
+                                }  else if (dataType.isAssignableFrom(Long.TYPE)||dataType.isAssignableFrom(Long.class)) {
+                                    data = cursor.getLong(columnIndex);
+                                }   else {
                                     data = cursor.getBlob(columnIndex);
                                 }
-                                Log.e(TAG,method.getName()+" "+data);
+                                Log.e("data",data+"");
+
                                 method.invoke(object, data);
                             } else {
                             }
                         }
-                        object.save();
+                        if(justTryNotWrite){
+                            if(object.save()){
+                                System.out.println(" saved successfully.");
+                            }else{
+                                System.out.println("saved failed.");
+                            }
+                        }else{
+                            System.out.println("just try not to save.");
+                        }
                     } catch (IllegalAccessException e) {
                         e.printStackTrace();
                     } catch (InstantiationException e) {
